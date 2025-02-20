@@ -7,10 +7,8 @@ function Root() {
   const auth = useContext(AuthContext);
   console.log(auth);
   return (
-    <div>
-      <h3>THis is the root folder</h3>
+    <div className="bg-slate-500 min-h-screen">
       <Outlet />
-      <div></div>
     </div>
   );
 }
