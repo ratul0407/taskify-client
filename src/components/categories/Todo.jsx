@@ -13,7 +13,7 @@ function Todo() {
 
   // Fetch tasks using React Query
   const {
-    data: todos,
+    data: todos = [],
     refetch,
     isLoading,
   } = useQuery({
