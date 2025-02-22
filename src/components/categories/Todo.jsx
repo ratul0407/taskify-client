@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import useAuth from "../../hooks/useAuth";
-import editIcon from "../../assets/edit.png";
 import deleteIcon from "../../assets/delete.png";
 import LoadingSpinner from "../loadingSpinner/LoadingSpinner";
 import Swal from "sweetalert2";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 function Todo() {
   const { user } = useAuth();
