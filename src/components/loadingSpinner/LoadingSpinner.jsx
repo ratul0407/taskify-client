@@ -1,6 +1,10 @@
 import "./spinner.css";
 function LoadingSpinner() {
-  return <span className="loading-spinner"></span>;
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <span className="loading-spinner"></span>;
+    </div>
+  );
 }
 
 export default LoadingSpinner;

@@ -7,7 +7,7 @@ function Root() {
   const auth = useContext(AuthContext);
   console.log(auth);
   return (
-    <div className="bg-slate-500 min-h-screen">
+    <div className="bg-slate-100 min-h-screen">
       <Outlet />
     </div>
   );

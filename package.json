@@ -10,6 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "axios": "^1.7.9",
     "firebase": "^11.3.1",
     "prop-types": "^15.8.1",
@@ -19,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
+    "@tanstack/eslint-plugin-query": "^5.66.1",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
