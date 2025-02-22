@@ -26,20 +26,25 @@ function AuthProvider({ children }) {
     return signOut(auth);
   };
   useEffect(() => {
-    const subscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        axios
-          .post(`${import.meta.env.VITE_API_URL}/users`, {
+        setUser(currentUser);
+        setLoading(false);
+        try {
+          await axios.post(`${import.meta.env.VITE_API_URL}/users`, {
             email: currentUser?.email,
             name: currentUser?.displayName,
-          })
-          .then((res) => console.log(res));
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        setUser(null);
+        setLoading(false);
       }
-      setUser(currentUser);
-      setLoading(false);
     });
 
-    return () => subscribe();
+    return () => unSubscribe();
   }, []);
   console.log(user);
 
@@ -49,6 +54,7 @@ function AuthProvider({ children }) {
     googleSignIn,
     logOut,
   };
+
   return (
     <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );

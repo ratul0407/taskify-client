@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 
 function Login() {
   const navigate = useNavigate();
-  const { googleSignIn, logOut } = useAuth();
+  const { googleSignIn } = useAuth();
   const handleGoogleSignIn = async () => {
     try {
       await googleSignIn().then((res) => {
@@ -29,7 +29,6 @@ function Login() {
         >
           Sign in with Google{" "}
         </button>
-        <button onClick={logOut}>Logout</button>
       </div>
     </div>
   );
