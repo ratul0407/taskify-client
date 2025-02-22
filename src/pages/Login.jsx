@@ -1,19 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import useAuth from "../hooks/useAuth";
-import axios from "axios";
+
 function Login() {
   const navigate = useNavigate();
   const { googleSignIn, logOut } = useAuth();
   const handleGoogleSignIn = async () => {
     try {
-      await googleSignIn().then((result) => {
-        console.log(result);
-        axios.post(`${import.meta.env.VITE_API_URL}/users`, {
-          name: result.displayName,
-          email: result.email,
-          tasks: {},
-        });
+      await googleSignIn().then((res) => {
+        console.log(res);
+        navigate("/");
       });
     } catch (error) {
       console.error(error.message);
