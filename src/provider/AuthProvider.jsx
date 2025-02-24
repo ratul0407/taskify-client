@@ -9,8 +9,8 @@ import auth from "../firebase/firebase.init";
 import { createContext } from "react";
 import { useEffect } from "react";
 import PropTypes from "prop-types";
-import axios from "axios";
 
+import { socket } from "../utils/socket";
 export const AuthContext = createContext(null);
 const googleProvider = new GoogleAuthProvider();
 function AuthProvider({ children }) {
@@ -30,11 +30,14 @@ function AuthProvider({ children }) {
       if (currentUser) {
         setUser(currentUser);
         setLoading(false);
+
         try {
-          await axios.post(`${import.meta.env.VITE_API_URL}/users`, {
+          socket.emit("users-creation", {
             email: currentUser?.email,
             name: currentUser?.displayName,
           });
+
+          console.log("hello world");
         } catch (error) {
           console.log(error);
         }
