@@ -17,6 +17,7 @@ function Todo() {
   const [editingId, setEditingId] = useState(null);
   const [editedContent, setEditedContent] = useState("");
 
+  console.log(todos);
   // Fetch initial tasks and listen for real-time updates
   useEffect(() => {
     if (!user?.email) return;
@@ -47,6 +48,7 @@ function Todo() {
       timestamp: Date.now(),
       category: "todo",
       addedBy: user?.email,
+      order: todos.length + 1,
     };
 
     socket.emit("task-creation", newTask);
@@ -65,7 +67,7 @@ function Todo() {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        socket.emit("task-delete", id);
+        socket.emit("task-delete", { id, user: user?.email });
       }
     });
   };
@@ -78,7 +80,7 @@ function Todo() {
 
   // Save the edited todo
   const handleSave = (id) => {
-    socket.emit("task-update", { id, title: editedContent });
+    socket.emit("task-update", { id, title: editedContent, user: user?.email });
     setEditingId(null);
   };
 
