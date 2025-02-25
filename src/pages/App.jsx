@@ -48,6 +48,16 @@ function App() {
       socket.off("items-updated");
     };
   }, [user?.email]);
+
+  useEffect(() => {
+    socket.on("reordered-tasks", ({ updatedTasks }) => {
+      setItems(updatedTasks);
+    });
+
+    return () => {
+      socket.off("reordered-tasks");
+    };
+  }, [user?.email]);
   const onDragEnd = (result) => {
     if (!result.destination) return;
 
@@ -55,18 +65,36 @@ function App() {
 
     // If dropped in the same column
     if (source.droppableId === destination.droppableId) {
-      const reorderedItems = Array.from(items);
-      const [movedItem] = reorderedItems.splice(source.index, 1);
-      reorderedItems.splice(destination.index, 0, movedItem);
+      // Filter tasks by the current column
+      const columnTasks = items.filter(
+        (item) => item.category === source.droppableId
+      );
 
-      // Update order property
-      const updatedItems = reorderedItems.map((item, index) => ({
-        ...item,
+      // Reorder tasks within the column
+      const [movedTask] = columnTasks.splice(source.index, 1);
+      columnTasks.splice(destination.index, 0, movedTask);
+
+      // Update order property for tasks in the column
+      const updatedColumnTasks = columnTasks.map((task, index) => ({
+        ...task,
         order: index + 1,
       }));
 
-      setItems(updatedItems);
-      socket.emit("reorder-items", { updatedItems, email: user?.email });
+      // Merge updated tasks back into the main items array
+      const newItems = items.map((item) => {
+        if (item.category === source.droppableId) {
+          return (
+            updatedColumnTasks.find((task) => task._id === item._id) || item
+          );
+        }
+        return item;
+      });
+
+      setItems(newItems);
+      socket.emit("reorder-items", {
+        updatedItems: newItems,
+        email: user?.email,
+      });
     } else {
       // If dropped in a different column
       const task = items.find((item) => item._id === result.draggableId);
@@ -78,7 +106,25 @@ function App() {
       // Add task to destination column
       const newDestinationItems = [...newSourceItems, updatedTask];
 
-      setItems(newDestinationItems);
+      // Recalculate order for tasks in the destination column
+      const destinationColumnTasks = newDestinationItems
+        .filter((item) => item.category === destination.droppableId)
+        .map((item, index) => ({
+          ...item,
+          order: index + 1,
+        }));
+
+      // Merge updated tasks back into the main items array
+      const finalItems = newDestinationItems.map((item) => {
+        if (item.category === destination.droppableId) {
+          return (
+            destinationColumnTasks.find((task) => task._id === item._id) || item
+          );
+        }
+        return item;
+      });
+
+      setItems(finalItems);
       socket.emit("update-task-category", updatedTask);
     }
   };
