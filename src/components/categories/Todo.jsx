@@ -6,13 +6,14 @@ import Swal from "sweetalert2";
 import { Droppable } from "@hello-pangea/dnd";
 import Task from "../task/Task";
 import { Draggable } from "@hello-pangea/dnd";
+import PropTypes from "prop-types";
 
 // Initialize socket connection
 const socket = io(import.meta.env.VITE_API_URL);
 
-function Todo() {
+function Todo({ todos, setTodos }) {
   const { user } = useAuth();
-  const [todos, setTodos] = useState([]);
+  // const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editedContent, setEditedContent] = useState("");
@@ -136,3 +137,7 @@ function Todo() {
 }
 
 export default Todo;
+Todo.propTypes = {
+  todos: PropTypes.array,
+  setTodos: PropTypes.func,
+};
