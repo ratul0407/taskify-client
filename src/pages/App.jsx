@@ -13,6 +13,11 @@ function App() {
     socket.on("userTasks", (tasks) => {
       setItems(tasks);
     });
+    socket.on("newTask", (task) => {
+      setItems((prevItems) => {
+        return [...prevItems, task];
+      });
+    });
   }, []);
 
   console.log(items);
@@ -27,20 +32,22 @@ function App() {
     };
   });
   const onDragEnd = (result) => {
-    if (!result.destination) return; // Dropped outside the list
+    if (!result.destination) return;
 
-    const { source, destination } = result;
+    const reorderedItems = Array.from(items);
+    const [movedItem] = reorderedItems.splice(result.source.index, 1);
+    reorderedItems.splice(result.destination.index, 0, movedItem);
 
-    // Reorder the items locally
-    const newItems = Array.from(items);
-    const [movedItem] = newItems.splice(source.index, 1); // Remove the item from its old position
-    newItems.splice(destination.index, 0, movedItem); // Insert the item at its new position
+    // Update order property
+    const updatedItems = reorderedItems.map((item, index) => ({
+      ...item,
+      order: index + 1,
+    }));
 
-    // Update local state
-    setItems(newItems);
+    setItems(updatedItems);
 
     // Emit the new order to the server
-    socket.emit("reorder items", newItems);
+    socket.emit("reorder items", updatedItems);
   };
   return (
     <div>

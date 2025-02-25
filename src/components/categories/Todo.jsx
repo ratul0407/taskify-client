@@ -27,9 +27,17 @@ function Todo({ todos, setTodos }) {
     socket.emit("get-tasks", user.email);
 
     // Listen for updated tasks
-    socket.on("updatedTasks", (newTasks) => {
-      setTodos(newTasks);
+    socket.on("updatedTasks", (task) => {
+      console.log(task);
+      setTodos((prevTodos) => {
+        return prevTodos.map((todo) => (todo._id === task._id ? task : todo));
+      });
       setLoading(false);
+    });
+    socket.on("task-deleted", (deletedTask) => {
+      setTodos((prevTodos) => {
+        return prevTodos.filter((todo) => todo._id !== deletedTask._id);
+      });
     });
 
     return () => {
