@@ -67,7 +67,7 @@ function Category({ tasks, id, title }) {
           <form onSubmit={(e) => handleSubmit(e, id)}>
             <div className="flex gap-2">
               <input
-                name="task "
+                name="task"
                 className="input input-bordered"
                 placeholder="Add a todo"
               />
