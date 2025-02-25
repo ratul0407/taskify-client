@@ -3,10 +3,10 @@ import deleteIcon from "../../assets/delete.png";
 function Task({
   todo,
   handleSave,
+  handleDelete,
   setEditedContent,
   editingId,
   editedContent,
-  handleDelete,
   handleEdit,
 }) {
   return (
@@ -16,6 +16,7 @@ function Task({
     >
       {editingId === todo._id ? (
         <input
+          maxLength={50}
           type="text"
           value={editedContent}
           onChange={(e) => setEditedContent(e.target.value)}

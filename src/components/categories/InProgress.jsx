@@ -1,19 +1,20 @@
-import { Droppable, Draggable } from "@hello-pangea/dnd";
-import Task from "../task/Task";
+import { Droppable } from "@hello-pangea/dnd";
 import PropTypes from "prop-types";
+import Task from "../task/Task";
+import { Draggable } from "@hello-pangea/dnd";
 
-function Todo({ todos }) {
+function InProgress({ inProgress }) {
   return (
-    <Droppable droppableId="todos">
+    <Droppable droppableId="in-progress">
       {(provided) => (
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
           className="bg-base-100 card w-84 rounded-lg p-8 space-y-4"
         >
-          <h3 className="text-xl font-bold">To do</h3>
+          <h3 className="text-xl font-bold">InProgress</h3>
           <div className="space-y-3">
-            {todos.map((todo, index) => (
+            {inProgress.map((todo, index) => (
               <Draggable key={todo._id} draggableId={todo._id} index={index}>
                 {(provided) => (
                   <div
@@ -42,9 +43,8 @@ function Todo({ todos }) {
   );
 }
 
-export default Todo;
-
-Todo.propTypes = {
-  todos: PropTypes.array,
-  setTodos: PropTypes.func,
+export default InProgress;
+InProgress.propTypes = {
+  inProgress: PropTypes.array,
+  setInProgress: PropTypes.func,
 };

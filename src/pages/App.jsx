@@ -1,12 +1,14 @@
 import Todo from "../components/categories/Todo";
 import { DragDropContext } from "@hello-pangea/dnd";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { socket } from "../utils/socket";
 import useAuth from "../hooks/useAuth";
+import InProgress from "../components/categories/InProgress";
+
 function App() {
   const [items, setItems] = useState([]);
   const { user } = useAuth();
+
   useEffect(() => {
     if (!user?.email) return;
     socket.emit("get-tasks", user.email);
@@ -22,42 +24,63 @@ function App() {
         return prevItems;
       });
     });
-  }, []);
+  }, [user?.email]);
 
-  console.log(items);
   useEffect(() => {
-    socket.on("items-updated"),
-      (updatedItems) => {
-        setItems(updatedItems);
-      };
+    socket.on("items-updated", (updatedItems) => {
+      setItems(updatedItems);
+    });
 
     return () => {
-      socket.off("items updated");
+      socket.off("items-updated");
     };
-  });
+  }, []);
+
   const onDragEnd = (result) => {
     if (!result.destination) return;
 
-    const reorderedItems = Array.from(items);
-    const [movedItem] = reorderedItems.splice(result.source.index, 1);
-    reorderedItems.splice(result.destination.index, 0, movedItem);
+    const { source, destination } = result;
 
-    // Update order property
-    const updatedItems = reorderedItems.map((item, index) => ({
-      ...item,
-      order: index + 1,
-    }));
+    // If dropped in the same column
+    if (source.droppableId === destination.droppableId) {
+      const reorderedItems = Array.from(items);
+      const [movedItem] = reorderedItems.splice(source.index, 1);
+      reorderedItems.splice(destination.index, 0, movedItem);
 
-    setItems(updatedItems);
+      // Update order property
+      const updatedItems = reorderedItems.map((item, index) => ({
+        ...item,
+        order: index + 1,
+      }));
 
-    // Emit the new order to the server
-    socket.emit("reorder items", updatedItems);
+      setItems(updatedItems);
+      socket.emit("reorder-items", updatedItems);
+    } else {
+      // If dropped in a different column
+      const task = items.find((item) => item._id === result.draggableId);
+      const updatedTask = { ...task, category: destination.droppableId };
+
+      // Remove task from source column
+      const newSourceItems = items.filter((item) => item._id !== task._id);
+
+      // Add task to destination column
+      const newDestinationItems = [...newSourceItems, updatedTask];
+
+      setItems(newDestinationItems);
+      socket.emit("update-task-category", updatedTask);
+    }
   };
+
+  // Filter tasks by category
+  const todos = items.filter((item) => item.category === "todos");
+  const inProgress = items.filter((item) => item.category === "in-progress");
+
   return (
     <div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex pt-10 px-10">
-          <Todo todos={items} setTodos={setItems} />
+        <div className="flex pt-10 px-10 gap-8">
+          <Todo todos={todos} setTodos={setItems} />
+          <InProgress inProgress={inProgress} setInProgress={setItems} />
         </div>
       </DragDropContext>
     </div>

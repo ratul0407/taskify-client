@@ -36,8 +36,6 @@ function AuthProvider({ children }) {
             email: currentUser?.email,
             name: currentUser?.displayName,
           });
-
-          console.log("hello world");
         } catch (error) {
           console.log(error);
         }
