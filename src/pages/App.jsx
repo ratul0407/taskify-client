@@ -17,9 +17,9 @@ function App() {
       setItems((prevItems) => {
         // Check if task already exists
         if (!prevItems.some((item) => item._id === task._id)) {
-          return [...prevItems, task]; // Add only if it's new
+          return [...prevItems, task];
         }
-        return prevItems; // If duplicate, return the existing list
+        return prevItems;
       });
     });
   }, []);
