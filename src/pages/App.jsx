@@ -38,7 +38,6 @@ function App() {
   }, []);
   useEffect(() => {
     socket.on("updated-tasks", (task) => {
-      console.log(task);
       setItems((prevTodos) => {
         return prevTodos.map((todo) => (todo._id === task._id ? task : todo));
       });
@@ -131,7 +130,6 @@ function App() {
 
   const sortedItems = [...items].sort((a, b) => a.order - b.order);
 
-  // Sort only within categories
   const todos = sortedItems.filter((item) => item.category === "todos");
   const inProgress = sortedItems.filter(
     (item) => item.category === "in-progress"

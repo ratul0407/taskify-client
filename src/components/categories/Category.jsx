@@ -70,6 +70,7 @@ function Category({ tasks, id, title }) {
                 name="task"
                 className="input input-bordered"
                 placeholder="Add a todo"
+                maxLength={50}
               />
               <button className="btn">Add</button>
             </div>
