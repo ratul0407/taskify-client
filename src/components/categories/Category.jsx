@@ -1,45 +1,17 @@
-import { Droppable } from "@hello-pangea/dnd";
 import { Draggable } from "@hello-pangea/dnd";
+import { Droppable } from "@hello-pangea/dnd";
+import Task from "../task/Task";
 import PropTypes from "prop-types";
 import { socket } from "../../utils/socket";
-import Swal from "sweetalert2";
 import useAuth from "../../hooks/useAuth";
+import Swal from "sweetalert2";
 import { useState } from "react";
-import { useEffect } from "react";
-import Task from "../task/Task";
 
-function Todo({ todos, setTodos }) {
+function Category({ tasks, id, title }) {
   const { user } = useAuth();
   const [editingId, setEditingId] = useState(null);
   const [editedContent, setEditedContent] = useState("");
 
-  console.log(todos);
-  // Fetch initial tasks and listen for real-time updates
-  useEffect(() => {
-    if (!user?.email) return;
-
-    // Fetch initial tasks from server
-    socket.emit("get-tasks", user.email);
-
-    // Listen for updated tasks
-    socket.on("updatedTasks", (task) => {
-      console.log(task);
-      setTodos((prevTodos) => {
-        return prevTodos.map((todo) => (todo._id === task._id ? task : todo));
-      });
-    });
-    socket.on("task-deleted", (deletedTask) => {
-      setTodos((prevTodos) => {
-        return prevTodos.filter((todo) => todo._id !== deletedTask._id);
-      });
-    });
-
-    return () => {
-      socket.off("updatedTasks"); // Cleanup listener on unmount
-    };
-  }, [user?.email]);
-
-  // Add a new todo
   const handleSubmit = (e, category) => {
     e.preventDefault();
     const form = e.target;
@@ -51,14 +23,12 @@ function Todo({ todos, setTodos }) {
       timestamp: Date.now(),
       category: category,
       addedBy: user?.email,
-      order: todos.length + 1,
+      order: tasks.length + 1,
     };
 
     socket.emit("task-creation", newTask);
     form.reset();
   };
-
-  // Delete a todo
   const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
@@ -74,7 +44,6 @@ function Todo({ todos, setTodos }) {
       }
     });
   };
-
   // Handle editing a todo
   const handleEdit = (id, title) => {
     setEditingId(id);
@@ -86,20 +55,19 @@ function Todo({ todos, setTodos }) {
     socket.emit("task-update", { id, title: editedContent, user: user?.email });
     setEditingId(null);
   };
-
   return (
-    <Droppable droppableId="todos">
+    <Droppable droppableId={id}>
       {(provided) => (
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className="bg-base-100 card w-84 rounded-lg p-8 space-y-4"
+          className="bg-base-100 card w-84 rounded-lg p-8 space-y-4 cursor-grab "
         >
-          <h3 className="text-xl font-bold">To do</h3>
-          <form onSubmit={(e) => handleSubmit(e, "todos")}>
+          <h3 className="text-xl font-bold">{title}</h3>
+          <form onSubmit={(e) => handleSubmit(e, id)}>
             <div className="flex gap-2">
               <input
-                name="task"
+                name="task "
                 className="input input-bordered"
                 placeholder="Add a todo"
               />
@@ -107,7 +75,7 @@ function Todo({ todos, setTodos }) {
             </div>
           </form>
           <div className="space-y-3">
-            {todos?.map((todo, index) => (
+            {tasks?.map((todo, index) => (
               <Draggable key={todo._id} draggableId={todo._id} index={index}>
                 {(provided) => (
                   <div
@@ -136,8 +104,9 @@ function Todo({ todos, setTodos }) {
   );
 }
 
-export default Todo;
-Todo.propTypes = {
-  todos: PropTypes.array,
-  setTodos: PropTypes.func,
+export default Category;
+Category.propTypes = {
+  tasks: PropTypes.array,
+  id: PropTypes.string,
+  title: PropTypes.string,
 };

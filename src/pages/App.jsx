@@ -1,9 +1,8 @@
-import Todo from "../components/categories/Todo";
 import { DragDropContext } from "@hello-pangea/dnd";
 import { useState, useEffect } from "react";
 import { socket } from "../utils/socket";
 import useAuth from "../hooks/useAuth";
-import InProgress from "../components/categories/InProgress";
+import Category from "../components/categories/Category";
 
 function App() {
   const [items, setItems] = useState([]);
@@ -27,15 +26,28 @@ function App() {
   }, [user?.email]);
 
   useEffect(() => {
-    socket.on("items-updated", (updatedItems) => {
-      setItems(updatedItems);
+    socket.on("task-deleted", (deletedTask) => {
+      setItems((prevTodos) => {
+        return prevTodos.filter((todo) => todo._id !== deletedTask._id);
+      });
+    });
+
+    return () => {
+      socket.off("item-deleted");
+    };
+  }, []);
+  useEffect(() => {
+    socket.on("updated-tasks", (task) => {
+      console.log(task);
+      setItems((prevTodos) => {
+        return prevTodos.map((todo) => (todo._id === task._id ? task : todo));
+      });
     });
 
     return () => {
       socket.off("items-updated");
     };
-  }, []);
-
+  }, [user?.email]);
   const onDragEnd = (result) => {
     if (!result.destination) return;
 
@@ -54,7 +66,7 @@ function App() {
       }));
 
       setItems(updatedItems);
-      socket.emit("reorder-items", updatedItems);
+      socket.emit("reorder-items", { updatedItems, email: user?.email });
     } else {
       // If dropped in a different column
       const task = items.find((item) => item._id === result.draggableId);
@@ -71,16 +83,22 @@ function App() {
     }
   };
 
-  // Filter tasks by category
-  const todos = items.filter((item) => item.category === "todos");
-  const inProgress = items.filter((item) => item.category === "in-progress");
+  const sortedItems = [...items].sort((a, b) => a.order - b.order);
+
+  // Sort only within categories
+  const todos = sortedItems.filter((item) => item.category === "todos");
+  const inProgress = sortedItems.filter(
+    (item) => item.category === "in-progress"
+  );
+  const done = sortedItems.filter((item) => item.category === "done");
 
   return (
     <div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex pt-10 px-10 gap-8">
-          <Todo todos={todos} setTodos={setItems} />
-          <InProgress inProgress={inProgress} setInProgress={setItems} />
+        <div className="flex flex-col pt-10 px-4 md:px-10 sm:flex-row gap-8">
+          <Category tasks={todos} id="todos" title="To do" />
+          <Category tasks={inProgress} id="in-progress" title="In Progress" />
+          <Category tasks={done} id="done" title="Done" />
         </div>
       </DragDropContext>
     </div>
