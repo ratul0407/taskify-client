@@ -15,7 +15,11 @@ function App() {
     });
     socket.on("newTask", (task) => {
       setItems((prevItems) => {
-        return [...prevItems, task];
+        // Check if task already exists
+        if (!prevItems.some((item) => item._id === task._id)) {
+          return [...prevItems, task]; // Add only if it's new
+        }
+        return prevItems; // If duplicate, return the existing list
       });
     });
   }, []);

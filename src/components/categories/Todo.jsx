@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import useAuth from "../../hooks/useAuth";
-import LoadingSpinner from "../loadingSpinner/LoadingSpinner";
 import Swal from "sweetalert2";
 import { Droppable } from "@hello-pangea/dnd";
 import Task from "../task/Task";
@@ -14,7 +13,6 @@ const socket = io(import.meta.env.VITE_API_URL);
 function Todo({ todos, setTodos }) {
   const { user } = useAuth();
   // const [todos, setTodos] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editedContent, setEditedContent] = useState("");
 
@@ -32,7 +30,6 @@ function Todo({ todos, setTodos }) {
       setTodos((prevTodos) => {
         return prevTodos.map((todo) => (todo._id === task._id ? task : todo));
       });
-      setLoading(false);
     });
     socket.on("task-deleted", (deletedTask) => {
       setTodos((prevTodos) => {
@@ -92,8 +89,6 @@ function Todo({ todos, setTodos }) {
     socket.emit("task-update", { id, title: editedContent, user: user?.email });
     setEditingId(null);
   };
-
-  if (loading) return <LoadingSpinner />;
 
   return (
     <Droppable droppableId="todos">
